@@ -30,6 +30,23 @@ L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-L.marker(imaginaryCords).addTo(map)
-    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+map.on('click', function(mapEvent){
+    const {lat, lng} = mapEvent.latlng;
+    L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup(L.popup({
+        maxWidth: 250,
+        minWidth: 100,
+        autoClose: false,
+        closeOnClick: true,
+        className: 'running-popup'
+    })
+    )
+    .setPopupContent(`Workout`)
     .openPopup();
+})
+
+
+
+
+
