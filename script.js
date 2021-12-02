@@ -173,6 +173,9 @@ class App {
         //Rendering workout GUI
         this._renderWorkout(workout);
         this._hideForm();
+
+        //Set local storage to all workouts
+        this.setLocalStorage();
         
     }
 
