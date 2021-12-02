@@ -100,11 +100,9 @@ class App {
 
     _newWorkout(e){
         //Validating method
-        const validInputs = (...inputs) => 
-            inputs.every(inp => Number.isFinite(inp));
-
-        const positiveInputs = (...inputs) => 
-            inputs.every(inp => inp > 0);
+        const validInputs = (...inputs) =>
+        inputs.every(inp => Number.isFinite(inp));
+        const allPositive = (...inputs) => inputs.every(inp => inp > 0);
 
         e.preventDefault();
 
@@ -115,29 +113,32 @@ class App {
         const {lat, lng} = this.#mapEvent.latlng;
         let workout;
 
-        if (type === 'running') {
-            const cadence = +inputCadence.value;
-
-            if(
-                !validInputs(distance, duration,  cadence) && 
-                !positiveInputs(distance, duration,  cadence)
-            )
-                return alert('Inputs must be positive numbers');
-
-            workout = new Running([lat, lng], distance, duration, cadence);
-        }
-
-        if (type === 'cycling'){
-            const elevation = +inputElevation.value;
-
-            if(
-                !validInputs(duration, distance, elevation) && 
-                !positiveInputs(duration, distance)
-            )
-                return alert('Inputs must be positive numbers');
-
-            workout = new Cycling([lat, lng], distance, duration, elevation);
-        }
+    // If workout running, create running object
+    if (type === 'running') {
+        const cadence = +inputCadence.value;
+  
+        // Check if data is valid
+        if (
+          !validInputs(distance, duration, cadence) ||
+          !allPositive(distance, duration, cadence)
+        )
+          return alert('Inputs have to be positive numbers!');
+  
+        workout = new Running([lat, lng], distance, duration, cadence);
+      }
+  
+      // If workout cycling, create cycling object
+      if (type === 'cycling') {
+        const elevation = +inputElevation.value;
+  
+        if (
+          !validInputs(distance, duration, elevation) ||
+          !allPositive(distance, duration)
+        )
+          return alert('Inputs have to be positive numbers!');
+  
+        workout = new Cycling([lat, lng], distance, duration, elevation);
+      }
 
         //Add new object to workouts array
         this.#workouts.push(workout);
