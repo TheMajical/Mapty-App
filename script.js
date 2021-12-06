@@ -72,6 +72,7 @@ class App {
     #mapZoomLevel = 13;
 
     constructor(){
+        this._getLocalStorage();
         this._loadMap(imaginaryCords);
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField());
@@ -99,6 +100,11 @@ class App {
 
         //Handling Clicks on Map
         this.#map.on('click', this._showForm.bind(this));
+
+        //Rendering saved workouts popups
+        this.#workouts.forEach(wk => {
+            this._renderWorkoutMarker(wk);
+          });
 }
 
     _showForm(mapE){
@@ -175,22 +181,25 @@ class App {
         this._hideForm();
 
         //Set local storage to all workouts
-        this.setLocalStorage();
+        this._setLocalStorage();
         
     }
 
     _renderWorkoutMarker(workout){
         L.marker(workout.coords)
         .addTo(this.#map)
-        .bindPopup(L.popup({
+        .bindPopup(
+          L.popup({
             maxWidth: 250,
             minWidth: 100,
             autoClose: false,
-            closeOnClick: true,
-            className: `${workout.type}-popup`
-        })
+            closeOnClick: false,
+            className: `${workout.type}-popup`,
+          })
         )
-        .setPopupContent(`${workout.type === "running" ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`)
+        .setPopupContent(
+          `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
+        )
         .openPopup();
     }
 
@@ -242,6 +251,8 @@ class App {
     }
 
     _moveToPopup(e){
+      // BUGFIX: When we click on a workout before the map has loaded, we get an error. But there is an easy fix:
+        if (!this.#map) return;
         const workoutEL = e.target.closest('.workout');
 
         //Guard Clause
@@ -256,8 +267,29 @@ class App {
             }
         })
 
-        workout._click();
-        console.log(workout);
+        //Disabled cause of the trouble localStorage marker
+        //workout._click();
+    }
+
+    _setLocalStorage() {
+        localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+      }
+    
+      _getLocalStorage() {
+        const data = JSON.parse(localStorage.getItem('workouts'));
+    
+        if (!data) return;
+    
+        this.#workouts = data;
+    
+        this.#workouts.forEach(work => {
+          this._renderWorkout(work);
+        });
+      }
+
+    reset(){
+        localStorage.removeItem('workouts');
+        location.reload();
     }
 }
 
